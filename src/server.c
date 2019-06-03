@@ -3,8 +3,13 @@
 local GameState gamestate = {0};
 
 void server_init(){
-	gamestate.map = map_generate(50,30);
+	gamestate.map = map_generate(210,40);
 	gamestate.entities[1] = (Entity){.type = ENTITY_PROJECTILE, .vx = 0.0, .x = 3.2, .y = 2.5, .projectileData.damage = 100};
+}
+
+void server_free(){
+	map_free(gamestate.map);
+	gamestate = (GameState){0};
 }
 
 local bool entity_collision(Entity* e1, Entity* e2){
@@ -52,8 +57,19 @@ void server_update(){
 						e->playerData.lookingRight = false;
 					}
 
+					if(player->controlState.down && !e->playerData.crouching){
+						e->playerData.crouching = true;
+						e->h = 1.5;
+						e->y += 0.5;
+					}
+					else if(!player->controlState.down && e->playerData.crouching){
+						e->playerData.crouching = false;
+						e->h = 2.0;
+						e->y -= 0.5;
+					}
+
 					if(player->controlState.shoot && e->playerData.fireDelay <= 0.0){
-						Entity projectile = (Entity){.type = ENTITY_PROJECTILE, .y = e->y+0.5*e->h, .vx = 40.0, .projectileData.damage = 10};
+						Entity projectile = (Entity){.type = ENTITY_PROJECTILE, .y = e->y+0.25*e->h, .vx = 40.0, .projectileData.damage = 10};
 						e->playerData.fireDelay = 0.1;
 						if(e->playerData.lookingRight){
 							projectile.x = e->x+e->w*1.5;
@@ -67,6 +83,7 @@ void server_update(){
 					else if(e->playerData.fireDelay > 0.0){
 						e->playerData.fireDelay -= DT;
 					}
+					player->controlState.valid = false;
 				}
 
 				if(e->playerData.health == 0){
@@ -149,6 +166,16 @@ bool server_register_player(char *nick, u8 *playerId){
 		}
 	}
 	return false;
+}
+
+void server_unregister_player(u8 playerId){
+	gamestate.players[playerId].valid = false;
+	for(int i = 0; i < MAX_ENTITIES; i++){
+		Entity *e = gamestate.entities+i;
+		if(e->type == ENTITY_PLAYER && e->playerData.playerId == playerId){
+			e->type = ENTITY_INVALID;
+		}
+	}
 }
 
 void server_push_control_state(u8 playerId, ControlState controlState){

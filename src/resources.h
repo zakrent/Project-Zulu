@@ -16,6 +16,7 @@ enum TextureType{
 SDL_Texture* textures[MAX_TEX];
 
 void resources_init();
+void resources_free();
 void resources_load_tex(u8 texType, char* filename);
 
 #endif

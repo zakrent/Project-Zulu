@@ -23,6 +23,7 @@ typedef struct Entity{
 			bool onGround      :1;
 			bool canDoubleJump :1;
 			bool lookingRight  :1;
+			bool crouching  :1;
 			u8 playerId;
 			u8 health;
 			real32 fireDelay;
@@ -57,10 +58,12 @@ typedef struct GameState{
 } GameState;
 
 void server_init();
+void server_free();
 void server_update();
 bool server_new_entity(Entity entity);
 GameState *server_get_gamestate();
 bool server_register_player(char *nick, u8 *playerId);
+void server_unregister_player(u8 playerId);
 void server_push_control_state(u8 playerId, ControlState controlState);
 
 #endif

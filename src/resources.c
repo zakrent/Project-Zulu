@@ -2,7 +2,14 @@
 
 void resources_init(){
 	resources_load_tex(TEX_MAP_TILES, "MAP_DEFAULT.bmp");
-	printf("%u\n", textures[TEX_MAP_TILES]);
+}
+
+void resources_free(){
+	for(int i = 0; i < MAX_TEX; i++){
+		if(textures[i] != NULL){
+			SDL_DestroyTexture(textures[i]);
+		}
+	}
 }
 
 void resources_load_tex(u8 texType, char* filename){

@@ -7,6 +7,10 @@ u8 *map_tile(Map map, u32 x, u32 y){
 	return map.tiles+x+y*map.w;
 }
 
+void map_free(Map map){
+	_free(map.tiles);
+}
+
 Map map_generate(u32 w, u32 h){
 	Map map = (Map){.w = w, .h = h};
 	map.tiles = _malloc(w*h*sizeof(u8));
@@ -15,7 +19,7 @@ Map map_generate(u32 w, u32 h){
 			if(h-y < 5 || x == 0 || y == 0 || x == w-1){
 				*map_tile(map, x, y) = TILE_STONE;
 			}
-			else if(h-y == 10 && w-x < 8){
+			else if((h-y == 20 && (x/10)%2 == 0)){
 				*map_tile(map, x, y) = TILE_STONE;
 			}
 			else{
@@ -33,11 +37,12 @@ bool map_collision_p(Map map, real32 x, real32 y){
 }
 
 bool map_collision(Map map, real32 x, real32 y, real32 w, real32 h){
+	//TODO: fix this shit
 	for(u32 mx = (u32)x; mx <= (u32)x+(u32)w; mx++){
 		for(u32 my = (u32)y; my <= (u32)y+(u32)h; my++){
 			if(*map_tile(map, mx, my) == TILE_STONE)
 				return true;
 		}
 	}
-	return false;
+	return map_collision_p(map, x+w, y+h);
 }

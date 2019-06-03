@@ -13,9 +13,15 @@ void client_init(){
 	controlState.valid = true;
 }
 
+void client_free(){
+	controlState = (ControlState){0};
+	playerId = 0;
+}
+
 void client_update(){
 	server_push_control_state(playerId, controlState);
 	controlState.up = false;
+	ui_update();
 }
 
 void client_handle_event(SDL_Event *event){
@@ -89,4 +95,5 @@ void client_render(){
 			break;
 		}
 	}
+	ui_render();
 }

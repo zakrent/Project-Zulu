@@ -54,7 +54,7 @@ void renderer_draw_rect(real32 x, real32 y, real32 w, real32 h){
 	tw = (u32)(w/cw*ww+0.5);
 	th = (u32)(h/ch*wh+0.5);
 	const SDL_Rect rect = {tx, ty, tw, th};
-	SDL_RenderDrawRect(renderer, &rect);
+	SDL_RenderFillRect(renderer, &rect);
 }
 
 void renderer_draw_tex(u8 texType, u32 texX, u32 texY, u32 texW, u32 texH, real32 x, real32 y, real32 w, real32 h){
@@ -97,7 +97,7 @@ void renderer_draw_map(Map map){
 					SDL_RenderCopy(renderer, tileTex, &tileSrcrect, &rect);
 				}
 				else
-					SDL_RenderDrawRect(renderer, &rect);
+					SDL_RenderFillRect(renderer, &rect);
 			}
 		}
 		SDL_SetRenderTarget(renderer, 0);
@@ -111,6 +111,12 @@ void renderer_draw_map(Map map){
 	const SDL_Rect srcrect = {0, 0, map.w*MAP_TILE_WIDTH, map.h*MAP_TILE_HEIGHT};
 	//const SDL_Rect dstrect = srcrect;
 	SDL_RenderCopy(renderer, t, &srcrect, &dstrect);
+}
+
+void renderer_draw_rectP(real32 x, real32 y, real32 w, real32 h, u8 r, u8 g, u8 b){
+	SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+	const SDL_Rect rect = {x, y, w, h};
+	SDL_RenderFillRect(renderer, &rect);
 }
 
 SDL_Texture* renderer_load_tex(SDL_Surface* s){
