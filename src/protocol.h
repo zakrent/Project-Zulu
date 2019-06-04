@@ -1,0 +1,20 @@
+#ifndef Z_PROTOCOL_H
+#define Z_PROTOCOL_H
+
+#define PORT 2500
+
+enum ServerMsgType{
+	SMSG_INVALID,
+	SMSG_GAMESTATE_UPDATE,
+	SMSG_KICK,
+	MAX_SMSG
+};
+
+enum ClientMsgType{
+	CMSG_INVALID,
+	CMSG_CONNECT,
+	CMSG_CONTROLSTATE_UPDATE,
+	MAX_CMSG
+};
+
+#endif

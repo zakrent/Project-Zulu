@@ -19,6 +19,6 @@ enum {false, true};
 void *_malloc(size_t size);
 void _free(void *ptr);
 
-#define DT 1.0/60.0
+#define DT 1.0/30.0
 
 #endif

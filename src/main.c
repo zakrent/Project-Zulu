@@ -11,6 +11,8 @@
 #include "renderer.c"
 #include "resources.c"
 #include "menu.c"
+#include "net_server.c"
+#include "net_client.c"
 
 void main_switch_state(u8 nextState){
 	switch(nextState){
@@ -28,6 +30,10 @@ void main_switch_state(u8 nextState){
 			if(listening){
 				server_free();
 				server_init();
+				net_server_init();
+			}
+			else{
+				net_client_init();
 			}
 			resources_free();
 			resources_init();
@@ -68,9 +74,12 @@ bool main_frame(void){
 				client_update();
 				if(listening){
 					server_update();
+					net_server_update();
 				}
 				renderer_start_frame();
 				client_render();
+				if(!listening)
+					net_client_update();
 				renderer_end_frame();
 				break;
 			default:
@@ -100,6 +109,8 @@ void main_event(SDL_Event *event){
 
 int main(int argc, char **argv){
 	SDL_Init(SDL_INIT_EVERYTHING);
+
+	printf("S: %u\n", sizeof(GameState));
 
 	listening = true;
 

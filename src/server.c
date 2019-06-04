@@ -8,7 +8,6 @@ void server_init(){
 }
 
 void server_free(){
-	map_free(gamestate.map);
 	gamestate = (GameState){0};
 }
 
@@ -41,7 +40,7 @@ void server_update(){
 					static const real32 jumpVel = 30.0;
 					e->vx += (e->vx < speed)*player->controlState.right*accel*DT-(e->vx > - speed)*player->controlState.left*accel*DT;
 					e->vx -= 2.0*((e->vx>0)-(e->vx<0))*accel*DT*e->playerData.onGround*!player->controlState.left*!player->controlState.right;
-					if(abs(e->vx) < 3.0 && !player->controlState.right && !player->controlState.left)
+					if(abs(e->vx) < 8.0 && !player->controlState.right && !player->controlState.left)
 						e->vx = 0.0;
 					if((e->playerData.onGround || e->playerData.canDoubleJump) && player->controlState.up){
 						e->vy -= jumpVel;
@@ -99,12 +98,12 @@ void server_update(){
 
 				e->playerData.onGround = false;
 				e->x += e->vx*DT;
-				if(map_collision(gamestate.map, e->x, e->y, e->w, e->h)){
+				if(map_collision(&gamestate.map, e->x, e->y, e->w, e->h)){
 					e->x -= e->vx*DT;
 					e->vx = 0.0;
 				}
 				e->y += e->vy*DT;
-				if(map_collision(gamestate.map, e->x, e->y, e->w, e->h)){
+				if(map_collision(&gamestate.map, e->x, e->y, e->w, e->h)){
 					e->y -= e->vy*DT;
 					if(e->vy > 0){
 						e->playerData.onGround = true;
@@ -118,7 +117,7 @@ void server_update(){
 			{
 				e->x += e->vx*DT;
 				e->y += e->vy*DT;
-				if(map_collision(gamestate.map, e->x, e->y, e->w, e->h)){
+				if(map_collision(&gamestate.map, e->x, e->y, e->w, e->h)){
 					e->type = ENTITY_INVALID;
 				}
 				for(int j = 0; j < MAX_ENTITIES; j++){
