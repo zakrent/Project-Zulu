@@ -14,6 +14,7 @@ void client_init(){
 		server_register_player("local", &playerId);
 	}
 	else{
+		playerId = net_client_get_playerId();
 	}
 	controlState = (ControlState){0};
 	controlState.valid = true;
@@ -27,7 +28,7 @@ void client_free(){
 
 void client_update(){
 	if(listening){
-		//server_push_control_state(playerId, controlState);
+		server_push_control_state(playerId, controlState);
 	}
 	else{
 		net_client_push_control_state(controlState);

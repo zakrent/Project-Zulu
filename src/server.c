@@ -68,7 +68,7 @@ void server_update(){
 					}
 
 					if(player->controlState.shoot && e->playerData.fireDelay <= 0.0){
-						Entity projectile = (Entity){.type = ENTITY_PROJECTILE, .y = e->y+0.25*e->h, .vx = 40.0, .projectileData.damage = 10};
+						Entity projectile = (Entity){.type = ENTITY_PROJECTILE, .y = e->y+0.25*e->h, .vx = 40.0, .projectileData.damage = 40, .w=0.1, .h=0.1};
 						e->playerData.fireDelay = 0.1;
 						if(e->playerData.lookingRight){
 							projectile.x = e->x+e->w*1.5;

@@ -40,28 +40,55 @@ void net_server_update(){
 	while (enet_host_service (server, &event, 0) > 0){
 		switch (event.type){
 			case ENET_EVENT_TYPE_CONNECT:
-				printf ("A new client connected from %x:%u.\n", 
-				event.peer->address.host,
-				event.peer->address.port);
-				NetClientData *peerData = _malloc(sizeof(NetClientData));
-				peerData->state = NC_CONNECTING;
-				event.peer->data = peerData;
-				break;
+				{
+					NetClientData *peerData = _malloc(sizeof(NetClientData));
+					peerData->state = NC_CONNECTING;
+					event.peer->data = peerData;
+					break;
+				}
 			case ENET_EVENT_TYPE_RECEIVE:
 				{
-					ControlState *cs = (ControlState*)event.packet->data;
-					server_push_control_state(0, *cs);
+					u8 *packetType = (u8*)event.packet->data;
+					NetClientData *peerData = event.peer->data;
+					switch(*packetType){
+						case CMSG_CONTROLSTATE_UPDATE:
+							{
+								if(event.packet->dataLength = sizeof(CVControlStatePacket) && peerData->state == NC_CONNECTED){
+									CVControlStatePacket* cspacket = (CVControlStatePacket*)event.packet->data;
+									ControlState cs = cspacket->cs;
+									server_push_control_state(peerData->playerId, cs);
+								}
+								break;
+							}
+						case CMSG_CONNECT:
+							{
+								if(event.packet->dataLength = sizeof(CVConnectPacket) && peerData->state == NC_CONNECTING){
+									CVConnectPacket* cpacket = (CVConnectPacket*)event.packet->data;
+									SVConnectedPacket cdpacket;
+									cdpacket.type = SMSG_CONNECTED;
+									if(server_register_player(cpacket->nick, &(cdpacket.playerId))){
+										peerData->state = NC_CONNECTED;
+										peerData->playerId = cdpacket.playerId;
+										ENetPacket *packet = enet_packet_create(&cdpacket, sizeof(SVConnectedPacket), 0);
+										enet_peer_send(event.peer, 0, packet);
+									}
+								}
+								break;
+							}
+						default:
+							break;
+					}
 					enet_packet_destroy (event.packet);
 					break;
 				}
 			case ENET_EVENT_TYPE_DISCONNECT:
-				printf ("%s disconnected.\n", event.peer -> data);
-				/* Reset the peer's client information. */
-				NetClientData *data = event.peer->data;
-				server_unregister_player(data->playerId);
-				_free(data);
-				event.peer->data = NULL;
-				break;
+				{
+					NetClientData *data = event.peer->data;
+					server_unregister_player(data->playerId);
+					_free(data);
+					event.peer->data = NULL;
+					break;
+				}
 			default:
 				break;
 		}
