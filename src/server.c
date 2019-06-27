@@ -4,7 +4,9 @@ local GameState gamestate = {0};
 
 void server_init(){
 	gamestate.map = map_generate(210,40);
-	gamestate.entities[1] = (Entity){.type = ENTITY_PROJECTILE, .vx = 0.0, .x = 3.2, .y = 2.5, .projectileData.damage = 100};
+	for(int i = 0; i < 250; i++){
+		gamestate.entities[1] = (Entity){.type = ENTITY_PROJECTILE, .vx = 0.0, .x = 3.2, .y = 2.5, .projectileData.damage = 100};
+	}
 }
 
 void server_free(){
@@ -123,7 +125,6 @@ void server_update(){
 				for(int j = 0; j < MAX_ENTITIES; j++){
 					Entity* e2 = gamestate.entities+j;
 					if(e2->type == ENTITY_PLAYER && entity_collision(e, e2)){
-						printf("HIT! %i\n", j);
 						if(e2->playerData.health < e->projectileData.damage){
 							e2->playerData.health = 0;
 						}	

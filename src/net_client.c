@@ -8,6 +8,7 @@ GameState netState = {0};
 ENetHost *client;
 ENetPeer *peer;
 local u8 netPlayerId = 0;
+local u32 lastClientGsId = 0;
 
 void net_client_init(){
 	client = enet_host_create (NULL, 1, 1, 0, 0);
@@ -45,9 +46,40 @@ void net_client_update(){
 		switch (event.type){
 			case ENET_EVENT_TYPE_RECEIVE:
 				{
-					GameState *newState = event.packet->data;
-					netState = *newState;
-					enet_packet_destroy (event.packet);
+					u8 *packetType = (u8*)event.packet->data;
+					switch(*packetType){
+						case SMSG_GAMESTATE_NEW:
+							{
+								SVGamestatePacket *gp = (SVGamestatePacket*)event.packet->data;
+								netState = gp->gs;
+								lastClientGsId = gp->lastGsId;
+								CVGamestateAckPacket gap = (CVGamestateAckPacket){.type = CMSG_GAMESTATE_ACK, .lastGsId = lastClientGsId};
+								ENetPacket *packet = enet_packet_create(&gap, sizeof(CVGamestateAckPacket), ENET_PACKET_FLAG_RELIABLE);
+								enet_peer_send(peer, 0, packet);
+								break;
+							}
+						case SMSG_GAMESTATE_UPDATE:
+							{
+								SVGamestateUpdatePacket *gup = (SVGamestateUpdatePacket*)event.packet->data;
+								if(gup->lastGsId > lastClientGsId){
+									for(int i = 0; i < MAX_PLAYERS; i++){
+										netState.players[i] = gup->players[i];
+									}
+
+									for(int i = 0; i < gup->nEntityUpdates; i++){
+										netState.entities[gup->entityUpdates[i].entityIdx] = gup->entityUpdates[i].entity;
+									}
+
+									lastClientGsId = gup->lastGsId;
+									CVGamestateAckPacket gap = (CVGamestateAckPacket){.type = CMSG_GAMESTATE_ACK, .lastGsId = lastClientGsId};
+									ENetPacket *packet = enet_packet_create(&gap, sizeof(CVGamestateAckPacket), ENET_PACKET_FLAG_RELIABLE);
+									enet_peer_send(peer, 0, packet);
+								}
+								break;
+							}
+						default:
+							break;
+					}
 					break;
 				}
 			case ENET_EVENT_TYPE_DISCONNECT:
@@ -55,6 +87,7 @@ void net_client_update(){
 			default:
 				break;
 		}
+		enet_packet_destroy(event.packet);
 	}
 }
 
