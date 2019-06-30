@@ -119,6 +119,8 @@ void net_server_update(){
 	for(int i = 0; i < server->connectedPeers; i++){
 		ENetPeer *p = server->peers+i;
 		NetClientData *pd = p->data;
+		if(pd == NULL)
+			continue;
 		if(pd->lastGsId > lastGsId - GS_BUFFER_SIZE + 1){
 			SVGamestateUpdatePacket *gup = _malloc(sizeof(SVGamestateUpdatePacket) + MAX_ENTITIES*sizeof((SVGamestateUpdatePacket *)0)->entityUpdates[0]);
 			*gup = (SVGamestateUpdatePacket){.type = SMSG_GAMESTATE_UPDATE, .lastGsId = lastGsId, .nEntityUpdates = 0};

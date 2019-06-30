@@ -40,14 +40,26 @@ void renderer_set_camera(real32 x, real32 y, real32 h){
 }
 
 void renderer_camera_track(real32 x, real32 y){
-	real32 dx = x-cx-cw*0.5;
+	/*real32 dx = x-cx-cw*0.5;
 	real32 dy = y-cy-ch*0.5;
 	cx += 10.0*dx*DT;
-	cy += 10.0*dy*DT;
+	cy += 10.0*dy*DT;*/
+	cx = x-cw*0.5;
+	cy = y-ch*0.5;
 }
 
 void renderer_draw_rect(real32 x, real32 y, real32 w, real32 h){
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	u32 tx, ty, tw, th;
+	tx = (u32)((x - cx)/cw*ww+0.5);
+	ty = (u32)((y - cy)/ch*wh+0.5);
+	tw = (u32)(w/cw*ww+0.5);
+	th = (u32)(h/ch*wh+0.5);
+	const SDL_Rect rect = {tx, ty, tw, th};
+	SDL_RenderFillRect(renderer, &rect);
+}
+void renderer_draw_rectb(real32 x, real32 y, real32 w, real32 h){
+	SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
 	u32 tx, ty, tw, th;
 	tx = (u32)((x - cx)/cw*ww+0.5);
 	ty = (u32)((y - cy)/ch*wh+0.5);

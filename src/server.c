@@ -71,7 +71,7 @@ void server_update(){
 
 					if(player->controlState.shoot && e->playerData.fireDelay <= 0.0){
 						Entity projectile = (Entity){.type = ENTITY_PROJECTILE, .y = e->y+0.25*e->h, .vx = 40.0, .projectileData.damage = 40, .w=0.1, .h=0.1};
-						e->playerData.fireDelay = 0.1;
+						e->playerData.fireDelay = 0.5;
 						if(e->playerData.lookingRight){
 							projectile.x = e->x+e->w*1.5;
 						}
@@ -169,13 +169,14 @@ bool server_register_player(char *nick, u8 *playerId){
 }
 
 void server_unregister_player(u8 playerId){
-	gamestate.players[playerId].valid = false;
 	for(int i = 0; i < MAX_ENTITIES; i++){
 		Entity *e = gamestate.entities+i;
 		if(e->type == ENTITY_PLAYER && e->playerData.playerId == playerId){
 			e->type = ENTITY_INVALID;
+			*e = (Entity){0};
 		}
 	}
+	gamestate.players[playerId] = (Player){0};
 }
 
 void server_push_control_state(u8 playerId, ControlState controlState){

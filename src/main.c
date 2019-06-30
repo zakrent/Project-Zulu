@@ -71,12 +71,13 @@ bool main_frame(void){
 					break;
 				}
 			case STATE_GAME:
-				client_update();
+				client_update_controls();
 				if(listening){
 					server_update();
 					net_server_update();
 				}
 				renderer_start_frame();
+				client_update();
 				client_render();
 				if(!listening)
 					net_client_update();

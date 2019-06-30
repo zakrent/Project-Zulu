@@ -8,6 +8,7 @@ void net_client_free();
 void net_client_update();
 void net_client_push_control_state(ControlState cs);
 u8 net_client_get_playerId();
+bool net_client_has_new_gamestate();
 GameState *net_client_get_gamestate();
 
 #endif

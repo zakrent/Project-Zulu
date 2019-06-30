@@ -32,6 +32,8 @@ bool map_collision_p(Map *map, real32 x, real32 y){
 }
 
 bool map_collision(Map *map, real32 x, real32 y, real32 w, real32 h){
+	if(x < 0 || y < 0 || x+w > map->w || y+h > map->h)
+		return false;
 	//TODO: fix this shit
 	for(u32 mx = (u32)x; mx <= (u32)x+(u32)w; mx++){
 		for(u32 my = (u32)y; my <= (u32)y+(u32)h; my++){

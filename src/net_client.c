@@ -4,6 +4,7 @@
 #include "protocol.h"
 
 GameState netState = {0};
+local bool hasNewGamestate = false;
 
 ENetHost *client;
 ENetPeer *peer;
@@ -56,6 +57,7 @@ void net_client_update(){
 								CVGamestateAckPacket gap = (CVGamestateAckPacket){.type = CMSG_GAMESTATE_ACK, .lastGsId = lastClientGsId};
 								ENetPacket *packet = enet_packet_create(&gap, sizeof(CVGamestateAckPacket), ENET_PACKET_FLAG_RELIABLE);
 								enet_peer_send(peer, 0, packet);
+								hasNewGamestate = true;
 								break;
 							}
 						case SMSG_GAMESTATE_UPDATE:
@@ -74,6 +76,7 @@ void net_client_update(){
 									CVGamestateAckPacket gap = (CVGamestateAckPacket){.type = CMSG_GAMESTATE_ACK, .lastGsId = lastClientGsId};
 									ENetPacket *packet = enet_packet_create(&gap, sizeof(CVGamestateAckPacket), ENET_PACKET_FLAG_RELIABLE);
 									enet_peer_send(peer, 0, packet);
+									hasNewGamestate = true;
 								}
 								break;
 							}
@@ -99,6 +102,11 @@ void net_client_push_control_state(ControlState cs){
 	enet_peer_send(peer, 0, packet);
 }
 
+bool net_client_has_new_gamestate(){
+	return hasNewGamestate;
+}
+
 GameState *net_client_get_gamestate(){
+	hasNewGamestate = false;
 	return &netState;
 }
